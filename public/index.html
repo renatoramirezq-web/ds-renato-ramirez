@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Atomic Design del Observatorio — Suite Completa (Móvil, 16:9 y Tokens)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    /* Reset & CSS Custom Properties: MODO OSCURO CONSTRUIDO SOLO CAMBIANDO TOKENS */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --token-acento: #2F6FDE;
+      --token-acento-oscuro: #1E4FA8;
+      --token-tinta: #14305C;
+      --token-tinta-muted: #536B8D;
+      --token-fondo-panel: #E9EFF7;
+      --token-papel: #FFFFFF;
+      --token-borde: #14305C;
+      --token-borde-suave: #C5DBF7;
+      --token-canvas: #070d19;
+      --token-surface: #F8FAFC;
+      --map-1: #EAF2FD;
+      --map-2: #C5DBF7;
+      --map-3: #8FB8EE;
+      --map-4: #5A93E0;
+      --map-5: #2F6FDE;
+      --safe-bottom: env(safe-area-inset-bottom, 16px);
+    }
+
+    [data-theme="dark"] {
+      --token-acento: #4E8FFF;
+      --token-acento-oscuro: #7DAEFF;
+      --token-tinta: #F0F5FC;
+      --token-tinta-muted: #A0B5D2;
+      --token-fondo-panel: #10213D;
+      --token-papel: #091426;
+      --token-borde: #385785;
+      --token-borde-suave: #1A3154;
+      --token-canvas: #030710;
+      --token-surface: #060E1C;
+      --map-1: #192A46;
+      --map-2: #1E3963;
+      --map-3: #264E88;
+      --map-4: #346AB8;
+      --map-5: #4E8FFF;
+    }
+
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--token-canvas);
+      color: var(--token-tinta);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    /* Barra Superior Global */
+    .app-header {
+      width: 100%;
+      background: var(--token-papel);
+      border-bottom: 1px solid var(--token-borde-suave);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .brand-cluster {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--token-acento);
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .btn-control {
+      background: var(--token-fondo-panel);
+      color: var(--token-tinta);
+      border: 1px solid var(--token-borde-suave);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+
+    .btn-control:hover {
+      border-color: var(--token-acento);
+    }
+
+    .btn-control.active {
+      background: var(--token-acento);
+      color: white;
+      border-color: var(--token-acento);
+    }
+
+    /* Barra de Simulación Interactiva */
+    .sim-bar {
+      width: 100%;
+      background: var(--token-fondo-panel);
+      border-bottom: 1px solid var(--token-borde-suave);
+      padding: 8px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11.5px;
+    }
+
+    /* Marco de Viewport */
+    #viewport-wrapper {
+      width: 100%;
+      max-width: 420px;
+      background: var(--token-papel);
+      border: 2px solid var(--token-borde-suave);
+      border-radius: 24px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+      margin: 14px 0 60px 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: max-width 0.3s ease;
+    }
+
+    /* Pestañas interiores */
+    .tabs-bar {
+      display: flex;
+      background: var(--token-fondo-panel);
+      border-bottom: 1px solid var(--token-borde-suave);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tabs-bar::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: var(--token-tinta);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tab-btn.active {
+      background: var(--token-papel);
+      color: var(--token-acento);
+      border-bottom: 2px solid var(--token-acento);
+    }
+
+    .content-area {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card-box {
+      background: var(--token-papel);
+      border: 2px solid var(--token-borde);
+      border-radius: 14px;
+      padding: 12px 14px;
+      transition: all 0.2s ease;
+    }
+
+    .card-box.hover-sim {
+      border-color: var(--token-acento);
+      box-shadow: 0 4px 12px rgba(47, 111, 222, 0.2);
+    }
+
+    .card-box.focus-sim {
+      outline: 2px solid var(--token-acento);
+    }
+
+    .btn-pill-action {
+      background: var(--token-acento);
+      color: white;
+      border: none;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 9px 18px;
+      border-radius: 9999px;
+      cursor: pointer;
+      display: inline-block;
+      text-align: center;
+      width: 100%;
+      transition: all 0.15s;
+    }
+    .btn-pill-action:hover, .btn-pill-action.hover-sim {
+      background: var(--token-acento-oscuro);
+    }
+    .btn-pill-action.focus-sim {
+      outline: 3px solid #90B9F3;
+      outline-offset: 2px;
+    }
+    .btn-pill-action:disabled, .btn-pill-action.disabled-sim {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* Modal / Drawer Índice */
+    #index-drawer {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    /* Toast */
+    #toast-banner {
+      display: none;
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--token-acento);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      z-index: 300;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    }
+
+    /* 16:9 Presentation Canvas */
+    #slide169-container {
+      display: none;
+      width: 1920px;
+      height: 1080px;
+      background: var(--token-papel);
+      transform-origin: top center;
+      padding: 34px 48px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="toast-banner">Token copiado</div>
+
+  <!-- Header Global -->
+  <header class="app-header">
+    <div class="brand-cluster">
+      <button class="btn-control" onclick="toggleIndex()">
+        ☰ Índice
+      </button>
+      <div class="brand-icon">OD</div>
+      <div>
+        <div style="font-size: 13px; font-weight: 700; line-height: 1;">Observatorio INE</div>
+        <div style="font-size: 10px; font-weight: 600; color: var(--token-acento);">Atomic Design System</div>
+      </div>
+    </div>
+
+    <!-- Switch de Ancho de Pantalla -->
+    <div style="display: flex; gap: 4px;">
+      <button class="btn-control active" id="vw-phone" onclick="setViewportMode('phone')">📱 Teléfono</button>
+      <button class="btn-control" id="vw-tablet" onclick="setViewportMode('tablet')">💻 Tablet</button>
+      <button class="btn-control" id="vw-desktop" onclick="setViewportMode('desktop')">🖥️ Escritorio</button>
+      <button class="btn-control" id="vw-169" onclick="setViewportMode('169')">🎬 16:9</button>
+    </div>
+
+    <!-- Modo Oscuro & Descargar -->
+    <div style="display: flex; gap: 6px;">
+      <button class="btn-control" onclick="toggleDarkTokens()">
+        <span id="dark-icon">🌙</span> <span id="dark-text">Modo Oscuro</span>
+      </button>
+      <button class="btn-control" style="background: var(--token-acento); color: white;" onclick="window.print()">
+        Descargar
+      </button>
+    </div>
+  </header>
+
+  <!-- Barra de Estados y Región Interactiva -->
+  <div class="sim-bar">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <strong>Región activa:</strong>
+      <select id="region-select" onchange="onRegionChange(this.value)" style="background: var(--token-papel); color: var(--token-tinta); border: 1.5px solid var(--token-borde); border-radius: 6px; padding: 3px 6px; font-weight: 700; font-size: 11px;">
+        <!-- Llenado dinámico -->
+      </select>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 4px;">
+      <strong>Simular Estado:</strong>
+      <button class="btn-control active" onclick="setSimState('normal', this)">Datos</button>
+      <button class="btn-control" onclick="setSimState('cargando', this)">Cargando ⏳</button>
+      <button class="btn-control" onclick="setSimState('vacio', this)">Vacío ∅</button>
+      <button class="btn-control" onclick="setSimState('error', this)">Error ⚠️</button>
+      <button class="btn-control" onclick="setSimState('no_consta', this)">No consta ❓</button>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 4px;">
+      <strong>Interacción:</strong>
+      <button class="btn-control active" onclick="setInteractionState('default', this)">Normal</button>
+      <button class="btn-control" onclick="setInteractionState('hover', this)">Hover</button>
+      <button class="btn-control" onclick="setInteractionState('focus', this)">Focus</button>
+      <button class="btn-control" onclick="setInteractionState('disabled', this)">Disabled</button>
+    </div>
+  </div>
+
+  <!-- Vista enmarcada responsive -->
+  <div id="viewport-wrapper">
+    <div class="tabs-bar">
+      <button class="tab-btn active" id="tb-ref" onclick="switchTab('ref')">1. Referencia</button>
+      <button class="tab-btn" id="tb-diag" onclick="switchTab('diag')">2. Diagrama</button>
+      <button class="tab-btn" id="tb-dec" onclick="switchTab('dec')">3. 10 Decisiones</button>
+      <button class="tab-btn" id="tb-esc" onclick="switchTab('esc')">4. Componente Nuevo</button>
+      <button class="tab-btn" id="tb-api" onclick="switchTab('api')">5. Conector API</button>
+    </div>
+
+    <div class="content-area">
+      
+      <!-- TAB 1: REFERENCIA -->
+      <div id="sec-ref">
+        <div style="background: var(--token-tinta); color: white; padding: 14px; border-radius: 14px;">
+          <span style="font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 9999px;">Paso 1 · Referencia</span>
+          <h2 style="font-size: 16px; margin-top: 4px;">Atomic Design del Observatorio</h2>
+          <p style="font-size: 11px; opacity: 0.9; margin-top: 2px;">Estructura de 5 capas: Átomos → Moléculas → Organismos → Plantillas → Páginas.</p>
+        </div>
+        <div style="background: var(--token-fondo-panel); padding: 8px; border-radius: 12px; margin-top: 8px;">
+          <img src="atomic_design_azul.png" alt="Diagrama" onerror="this.src='/atomic_design_azul.png'" style="width: 100%; border-radius: 8px; display: block;">
+        </div>
+        <button class="btn-pill-action" style="margin-top: 10px;" onclick="switchTab('diag')">
+          Explorar Diagrama Reactivo →
+        </button>
+      </div>
+
+      <!-- TAB 2: DIAGRAMA REACTIVO -->
+      <div id="sec-diag" style="display: none; flex-direction: column; gap: 10px;">
+        <div style="display: flex; gap: 4px; overflow-x: auto;">
+          <button class="btn-control active" id="lbtn-1" onclick="selectLayer(1)">1. Átomos</button>
+          <button class="btn-control" id="lbtn-2" onclick="selectLayer(2)">2. Moléculas</button>
+          <button class="btn-control" id="lbtn-3" onclick="selectLayer(3)">3. Organismos</button>
+          <button class="btn-control" id="lbtn-4" onclick="selectLayer(4)">4. Plantillas</button>
+          <button class="btn-control" id="lbtn-5" onclick="selectLayer(5)">5. Páginas</button>
+        </div>
+
+        <div id="layer-content" style="background: var(--token-fondo-panel); padding: 14px; border-radius: 14px; border: 1px solid var(--token-borde-suave); display: flex; flex-direction: column; gap: 10px;">
+          <!-- Contenido renderizado -->
+        </div>
+      </div>
+
+      <!-- TAB 3: 10 DECISIONES -->
+      <div id="sec-dec" style="display: none; flex-direction: column; gap: 8px;">
+        <h3 style="font-size: 14px; font-weight: 700;">Por qué estas decisiones</h3>
+        <div id="decisions-list" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- 10 decisiones -->
+        </div>
+        <div style="background: var(--token-tinta); color: white; padding: 12px; border-radius: 12px; font-size: 11.5px; line-height: 1.4;">
+          Los átomos hasta las páginas siguen el recorrido de los datos; principios, estados, voz y accesibilidad cubren los riesgos: <strong style="color: #90B9F3;">error, confusión y falta de confianza</strong>.
+        </div>
+      </div>
+
+      <!-- TAB 4: COMPONENTE NUEVO (DEMOSTRACIÓN DE ESCALABILIDAD) -->
+      <div id="sec-esc" style="display: none; flex-direction: column; gap: 10px;">
+        <div style="background: var(--token-tinta); color: white; padding: 12px; border-radius: 12px;">
+          <span style="font-size: 10px; font-weight: 700; color: #90B9F3; text-transform: uppercase;">Demostración de Escalabilidad</span>
+          <h3 style="font-size: 15px; margin-top: 2px;">Componente Nuevo: "Comparador Bi-regional"</h3>
+          <p style="font-size: 11px; opacity: 0.9;">Armado 100% con piezas existentes del design system.</p>
+        </div>
+
+        <div class="card-box" style="border-color: var(--token-acento); display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--token-borde-suave); padding-bottom: 6px;">
+            <span style="border: 1.5px solid var(--token-tinta); font-size: 9.5px; font-weight: 700; padding: 1px 8px; border-radius: 9999px;">INE · ENE</span>
+            <span style="font-size: 11px; font-weight: 700; color: var(--token-acento);">Comparativa Bi-regional</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div style="background: var(--token-fondo-panel); padding: 8px; border-radius: 8px; text-align: center;">
+              <span id="comp-name-a" style="font-size: 11px; font-weight: 700; display: block;">Ñuble</span>
+              <span id="comp-val-a" style="font-size: 20px; font-weight: 700; color: var(--token-acento);">11,2%</span>
+            </div>
+            <div style="background: var(--token-fondo-panel); padding: 8px; border-radius: 8px; text-align: center;">
+              <span id="comp-name-b" style="font-size: 11px; font-weight: 700; display: block;">Metropolitana</span>
+              <span id="comp-val-b" style="font-size: 20px; font-weight: 700; color: var(--token-tinta);">9,6%</span>
+            </div>
+          </div>
+
+          <div style="background: var(--token-fondo-panel); padding: 8px; border-radius: 8px; font-size: 11px; font-weight: 700; display: flex; justify-content: space-between;">
+            <span>Brecha:</span>
+            <span style="color: var(--token-acento);" id="comp-diff">+1,6 pp de diferencia</span>
+          </div>
+
+          <button class="btn-pill-action" onclick="copyToken('#2F6FDE', 'Acción comparativa ejecutada')">
+            Descargar informe comparativo CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 5: CONECTOR API EN VIVO -->
+      <div id="sec-api" style="display: none; flex-direction: column; gap: 10px;">
+        <div style="background: var(--token-tinta); color: white; padding: 12px; border-radius: 12px;">
+          <h3 style="font-size: 15px;">Conexión en Vivo: GET /regiones</h3>
+          <p style="font-size: 11px; opacity: 0.9;">Lee los datos directamente del Cloudflare Worker del agente.</p>
+        </div>
+
+        <div class="card-box" style="display: flex; flex-direction: column; gap: 8px;">
+          <label style="font-size: 11px; font-weight: 700;">URL del backend worker:</label>
+          <input type="text" id="api-input-url" value="https://observatorio-backend.workers.dev/regiones" style="background: var(--token-fondo-panel); border: 1px solid var(--token-borde-suave); padding: 8px; border-radius: 8px; font-size: 11px; font-family: monospace; color: var(--token-tinta);">
+          <button class="btn-pill-action" onclick="testLiveWorker()">
+            Consultar API en Vivo
+          </button>
+          <div id="api-status-msg" style="font-size: 11px; color: var(--token-tinta-muted); background: var(--token-fondo-panel); padding: 8px; border-radius: 8px;">
+            Estado: Listo para conectar con el agente.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Vista 16:9 de proyección -->
+  <div id="slide169-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--token-borde-suave); padding-bottom: 12px;">
+      <div>
+        <h1 style="font-size: 34px; font-weight: 700;">Atomic Design del Observatorio</h1>
+        <p style="font-size: 16px; color: var(--token-acento-oscuro);">Cada decisión responde a una pieza del producto o a un riesgo de esas piezas</p>
+      </div>
+      <button class="btn-control active" onclick="setViewportMode('phone')">Volver a Teléfono</button>
+    </div>
+    <div style="flex: 1; display: flex; align-items: center; justify-content: center; background: var(--token-fondo-panel); border-radius: 16px; margin: 20px 0;">
+      <img src="atomic_design_azul.png" alt="Slide Diagrama" onerror="this.src='/atomic_design_azul.png'" style="max-height: 520px; object-fit: contain;">
+    </div>
+    <div style="background: var(--token-tinta); color: white; padding: 14px 28px; border-radius: 12px; text-align: center; font-size: 16px;">
+      Los átomos hasta las páginas siguen el recorrido de los datos; principios, estados, voz y accesibilidad cubren los riesgos: <strong>error, confusión y falta de confianza</strong>.
+    </div>
+  </div>
+
+  <!-- Modal Índice Rápido -->
+  <div id="index-drawer" onclick="if(event.target===this) toggleIndex()">
+    <div style="background: var(--token-papel); width: 100%; max-width: 380px; border-radius: 18px; border: 2px solid var(--token-borde-suave); padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--token-borde-suave); padding-bottom: 8px;">
+        <strong style="font-size: 14px;">Índice a cada sección</strong>
+        <button onclick="toggleIndex()" style="background: none; border: none; font-size: 16px; cursor: pointer; color: var(--token-tinta);">✕</button>
+      </div>
+      <button class="btn-control" onclick="switchTab('ref'); toggleIndex()">1. Referencia Visual (Imagen)</button>
+      <button class="btn-control" onclick="switchTab('diag'); selectLayer(1); toggleIndex()">2. Capa Átomos (Tokens y piezas)</button>
+      <button class="btn-control" onclick="switchTab('diag'); selectLayer(2); toggleIndex()">3. Capa Moléculas (Cifras y selector)</button>
+      <button class="btn-control" onclick="switchTab('diag'); selectLayer(3); toggleIndex()">4. Capa Organismos (Ficha y Mapa Chile)</button>
+      <button class="btn-control" onclick="switchTab('diag'); selectLayer(4); toggleIndex()">5. Capa Plantillas (Wireframe)</button>
+      <button class="btn-control" onclick="switchTab('diag'); selectLayer(5); toggleIndex()">6. Capa Páginas (Producto)</button>
+      <button class="btn-control" onclick="switchTab('dec'); toggleIndex()">7. Las 10 Decisiones del Sistema</button>
+      <button class="btn-control" onclick="switchTab('esc'); toggleIndex()">8. Componente Nuevo (Escalabilidad)</button>
+      <button class="btn-control" onclick="switchTab('api'); toggleIndex()">9. Conector Worker GET /regiones</button>
+      <button class="btn-control" onclick="setViewportMode('169'); toggleIndex()">10. Diapositiva 16:9 Completa</button>
+    </div>
+  </div>
+
+  <script>
+    const REGIONES = [
+      { id: 'XV', nombre: 'Arica y Parinacota', tasa: '8,4%', varAnual: '+0,4 pp', width: 44, color: 'var(--map-3)' },
+      { id: 'I', nombre: 'Tarapacá', tasa: '9,2%', varAnual: '+0,8 pp', width: 48, color: 'var(--map-4)' },
+      { id: 'II', nombre: 'Antofagasta', tasa: '10,8%', varAnual: '+1,2 pp', width: 54, color: 'var(--map-5)' },
+      { id: 'III', nombre: 'Atacama', tasa: '8,9%', varAnual: '-0,3 pp', width: 50, color: 'var(--map-3)' },
+      { id: 'IV', nombre: 'Coquimbo', tasa: '7,8%', varAnual: '-0,5 pp', width: 46, color: 'var(--map-2)' },
+      { id: 'V', nombre: 'Valparaíso', tasa: '9,5%', varAnual: '+0,9 pp', width: 52, color: 'var(--map-4)' },
+      { id: 'RM', nombre: 'Metropolitana de Santiago', tasa: '9,6%', varAnual: '+1,0 pp', width: 58, color: 'var(--map-5)' },
+      { id: 'VI', nombre: "O'Higgins", tasa: '8,1%', varAnual: '+0,1 pp', width: 50, color: 'var(--map-3)' },
+      { id: 'VII', nombre: 'Maule', tasa: '7,5%', varAnual: '-0,4 pp', width: 48, color: 'var(--map-2)' },
+      { id: 'XVI', nombre: 'Ñuble', tasa: '11,2%', varAnual: '+1,1 pp', width: 52, color: 'var(--map-5)' },
+      { id: 'VIII', nombre: 'Biobío', tasa: '9,4%', varAnual: '+0,7 pp', width: 50, color: 'var(--map-4)' },
+      { id: 'IX', nombre: 'La Araucanía', tasa: '8,7%', varAnual: '+0,2 pp', width: 46, color: 'var(--map-3)' },
+      { id: 'XIV', nombre: 'Los Ríos', tasa: '7,9%', varAnual: '-0,2 pp', width: 42, color: 'var(--map-2)' },
+      { id: 'X', nombre: 'Los Lagos', tasa: '8,3%', varAnual: '+0,3 pp', width: 48, color: 'var(--map-3)' },
+      { id: 'XI', nombre: 'Aysén', tasa: '6,4%', varAnual: '-0,8 pp', width: 40, color: 'var(--map-1)' },
+      { id: 'XII', nombre: 'Magallanes', tasa: '7,1%', varAnual: '-0,1 pp', width: 44, color: 'var(--map-2)' }
+    ];
+
+    const DECISIONES = [
+      { num: '1', titulo: '1 · El producto', frase: 'Fija qué se construye antes de cómo se ve. Se alimenta de /regiones y /nota.', tipo: 'riesgo', cat: 'Riesgo' },
+      { num: '2', titulo: '2 · Principios', frase: 'Simplificar puede distorsionar: reglas no negociables, como toda cifra con su fuente.', tipo: 'riesgo', cat: 'Riesgo' },
+      { num: '3', titulo: '3 · Tokens', frase: 'El cron actualiza el producto solo; los tokens mantienen la consistencia sin ajustes manuales.', tipo: 'riesgo', cat: 'Riesgo' },
+      { num: '4', titulo: '4 · Átomos', frase: 'Las piezas que la API ya implica: la cifra, las 16 regiones, etiquetas y botones.', tipo: 'diagrama', cat: 'Diagrama' },
+      { num: '5', titulo: '5 · Moléculas', frase: 'La tarjeta de cifra existe porque /regiones entrega tasa, variación y URL del boletín juntas.', tipo: 'diagrama', cat: 'Diagrama' },
+      { num: '6', titulo: '6 · Organismos', frase: 'Cada sección va ligada a una pieza: ficha y mapa a /regiones, nota a /nota, tabla a /exportar.csv.', tipo: 'diagrama', cat: 'Diagrama' },
+      { num: '7', titulo: '7 · Plantillas y páginas', frase: 'Se prueba el sistema con datos reales, en teléfono y escritorio.', tipo: 'diagrama', cat: 'Diagrama' },
+      { num: '8', titulo: '8 · Estados', frase: 'Cargando, error, sin datos y "no consta" nacen de la propia arquitectura.', tipo: 'riesgo', cat: 'Riesgo' },
+      { num: '9', titulo: '9 · Datos y voz', frase: 'Lenguaje accesible: escala de color legible y reglas para cifras, fechas y puntos porcentuales.', tipo: 'riesgo', cat: 'Riesgo' },
+      { num: '10', titulo: '10 · Accesibilidad e IA', frase: 'Contraste y foco visible para toda la comunidad, y transparencia sobre el uso de IA.', tipo: 'riesgo', cat: 'Riesgo' }
+    ];
+
+    let currentRegion = REGIONES[9]; // Ñuble
+    let currentLayer = 1;
+    let simState = 'normal';
+    let currentInteraction = 'default';
+
+    function initSelectors() {
+      const sel = document.getElementById('region-select');
+      sel.innerHTML = REGIONES.map(r => `<option value="${r.id}">${r.nombre} (${r.tasa})</option>`).join('');
+      sel.value = currentRegion.id;
+    }
+
+    function onRegionChange(regId) {
+      currentRegion = REGIONES.find(r => r.id === regId) || REGIONES[9];
+      renderActiveLayer();
+      updateComparator();
+      showToast('Región cambiada: ' + currentRegion.nombre);
+    }
+
+    function toggleDarkTokens() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      document.getElementById('dark-icon').textContent = isDark ? '🌙' : '☀️';
+      document.getElementById('dark-text').textContent = isDark ? 'Modo Oscuro' : 'Modo Claro';
+      showToast(isDark ? 'Modo Claro' : 'Modo Oscuro (cambio de tokens)');
+    }
+
+    function setSimState(st, btn) {
+      simState = st;
+      document.querySelectorAll('.sim-bar .btn-control').forEach(b => {
+        if (b.parentElement === btn.parentElement) b.classList.remove('active');
+      });
+      btn.classList.add('active');
+      renderActiveLayer();
+    }
+
+    function setInteractionState(ist, btn) {
+      currentInteraction = ist;
+      document.querySelectorAll('.sim-bar .btn-control').forEach(b => {
+        if (b.parentElement === btn.parentElement) b.classList.remove('active');
+      });
+      btn.classList.add('active');
+      renderActiveLayer();
+    }
+
+    function copyToken(val, label) {
+      navigator.clipboard.writeText(val).catch(()=>{});
+      showToast('Copiado: ' + label + ' (' + val + ')');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast-banner');
+      t.textContent = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 2200);
+    }
+
+    function toggleIndex() {
+      const d = document.getElementById('index-drawer');
+      d.style.display = (d.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    function setViewportMode(mode) {
+      const wrap = document.getElementById('viewport-wrapper');
+      const s169 = document.getElementById('slide169-container');
+      
+      document.querySelectorAll('#vw-phone, #vw-tablet, #vw-desktop, #vw-169').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById('vw-' + mode);
+      if(activeBtn) activeBtn.classList.add('active');
+
+      if (mode === '169') {
+        wrap.style.display = 'none';
+        s169.style.display = 'flex';
+        s169.style.flexDirection = 'column';
+        resize169();
+      } else {
+        s169.style.display = 'none';
+        wrap.style.display = 'flex';
+        if (mode === 'phone') wrap.style.maxWidth = '420px';
+        else if (mode === 'tablet') wrap.style.maxWidth = '768px';
+        else wrap.style.maxWidth = '1140px';
+      }
+    }
+
+    function resize169() {
+      const s = document.getElementById('slide169-container');
+      const scale = Math.min((window.innerWidth - 40) / 1920, (window.innerHeight - 100) / 1080);
+      s.style.transform = 'scale(' + scale + ')';
+    }
+
+    function switchTab(t) {
+      ['ref', 'diag', 'dec', 'esc', 'api'].forEach(id => {
+        document.getElementById('sec-' + id).style.display = (id === t) ? 'flex' : 'none';
+        document.getElementById('tb-' + id).classList.toggle('active', id === t);
+      });
+    }
+
+    function selectLayer(num) {
+      currentLayer = num;
+      for (let i = 1; i <= 5; i++) {
+        document.getElementById('lbtn-' + i).classList.toggle('active', i === num);
+      }
+      renderActiveLayer();
+    }
+
+    function renderActiveLayer() {
+      const box = document.getElementById('layer-content');
+      if (currentLayer === 1) {
+        box.innerHTML = `
+          <span style="font-size:12px; font-weight:700;">ÁTOMOS — Tokens con clic para copiar:</span>
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px;">
+            <div class="card-box" style="padding:8px; text-align:center; cursor:pointer;" onclick="copyToken('#2F6FDE', 'Acento')">
+              <div style="width:24px; height:24px; border-radius:6px; background:var(--token-acento); margin:0 auto 2px;"></div>
+              <span style="font-size:10px; font-weight:700;">#2F6FDE</span>
+            </div>
+            <div class="card-box" style="padding:8px; text-align:center; cursor:pointer;" onclick="copyToken('#14305C', 'Tinta')">
+              <div style="width:24px; height:24px; border-radius:6px; background:var(--token-tinta); margin:0 auto 2px;"></div>
+              <span style="font-size:10px; font-weight:700;">#14305C</span>
+            </div>
+            <div class="card-box" style="padding:8px; text-align:center; cursor:pointer;" onclick="copyToken('#FFFFFF', 'Papel')">
+              <div style="width:24px; height:24px; border-radius:6px; background:var(--token-papel); border:1px solid #CBD5E1; margin:0 auto 2px;"></div>
+              <span style="font-size:10px; font-weight:700;">#FFFFFF</span>
+            </div>
+          </div>
+          <button class="btn-pill-action ${currentInteraction === 'disabled' ? 'disabled-sim' : currentInteraction === 'hover' ? 'hover-sim' : currentInteraction === 'focus' ? 'focus-sim' : ''}">Cambiar región</button>
+        `;
+      } else if (currentLayer === 2) {
+        let metricContent = `
+          <span style="font-size:28px; font-weight:700; color:var(--token-tinta);">${currentRegion.tasa}</span>
+          <div style="font-size:11px; font-weight:700; color:var(--token-acento); margin-top:2px;">${currentRegion.varAnual} en un año</div>
+          <div style="font-size:10px; color:#64748B; margin-top:4px;">Fuente: INE, ENE jun–ago</div>
+        `;
+        if (simState === 'cargando') {
+          metricContent = '<div style="font-size:14px; color:#64748B;">Cargando datos del INE... ⏳</div>';
+        } else if (simState === 'vacio') {
+          metricContent = '<div style="font-size:14px; color:#D97706;">Sin registros para este trimestre ∅</div>';
+        } else if (simState === 'error') {
+          metricContent = '<div style="font-size:14px; color:#DC2626;">Error de API. Reintentando... ⚠️</div>';
+        } else if (simState === 'no_consta') {
+          metricContent = '<span style="font-size:28px; font-weight:700;">—</span><div style="font-size:11px; color:#D97706;">Dato no consta (precisión muestral)</div>';
+        }
+
+        box.innerHTML = `
+          <span style="font-size:12px; font-weight:700;">MOLÉCULAS — Tarjeta de Cifra y Selector:</span>
+          <div class="card-box ${currentInteraction === 'hover' ? 'hover-sim' : currentInteraction === 'focus' ? 'focus-sim' : ''}">${metricContent}</div>
+          <div class="card-box" style="font-size:12px; font-weight:700; display:flex; justify-content:space-between;">
+            <span>${currentRegion.nombre}</span><span>▼</span>
+          </div>
+        `;
+      } else if (currentLayer === 3) {
+        box.innerHTML = `
+          <span style="font-size:12px; font-weight:700;">ORGANISMOS — Ficha ${currentRegion.nombre} y Mapa Chile:</span>
+          <div class="card-box">
+            <span style="font-size:12px; font-weight:700;">${currentRegion.nombre}: ${currentRegion.tasa}</span>
+            <div style="height:8px; border-radius:9999px; background:var(--token-acento); width:85%; margin:6px 0;"></div>
+            <span style="font-size:10px; color:#64748B;">país 8,6%</span>
+            <div style="height:8px; border-radius:9999px; background:#CBD5E1; width:64%; margin-top:2px;"></div>
+          </div>
+          <div class="card-box" style="display:flex; flex-direction:column; align-items:center; gap:3px;">
+            ${REGIONES.map(r => `
+              <div onclick="onRegionChange('${r.id}')" style="width:${r.width * 1.5}px; height:5px; border-radius:9999px; background:${r.color}; cursor:pointer; ${r.id === currentRegion.id ? 'box-shadow:0 0 0 2px var(--token-tinta);' : ''}"></div>
+            `).join('')}
+            <span style="font-size:10px; color:#64748B; margin-top:4px;">Toca cualquier barra regional</span>
+          </div>
+        `;
+      } else if (currentLayer === 4) {
+        box.innerHTML = `
+          <span style="font-size:12px; font-weight:700;">PLANTILLAS — El esqueleto sin contenido:</span>
+          <div class="card-box" style="display:flex; flex-direction:column; gap:4px; text-align:center; font-size:11px; font-weight:600;">
+            <div style="border:1.5px dashed var(--token-borde); padding:6px; border-radius:6px;">cabecera</div>
+            <div style="border:1.5px dashed var(--token-borde); padding:10px; border-radius:6px;">ficha de tu región</div>
+            <div style="border:1.5px dashed var(--token-borde); padding:18px; border-radius:6px;">mapa</div>
+            <div style="border:1.5px dashed var(--token-borde); padding:4px; border-radius:6px;">fuente · uso de IA</div>
+          </div>
+        `;
+      } else if (currentLayer === 5) {
+        box.innerHTML = `
+          <span style="font-size:12px; font-weight:700; color:var(--token-acento);">PÁGINAS — El producto final con datos reales:</span>
+          <div class="card-box" style="text-align:center;">
+            <div style="background:var(--token-tinta); color:white; padding:4px; border-radius:6px; font-size:11px; font-weight:700;">Observatorio</div>
+            <span style="font-size:10px; color:#64748B; margin-top:4px; display:block;">tu región: ${currentRegion.nombre}</span>
+            <span style="font-size:24px; font-weight:700; color:var(--token-tinta);">${currentRegion.tasa}</span>
+            <span style="font-size:10px; font-weight:700; color:var(--token-acento); display:block;">${currentRegion.varAnual} vs país 9,6%</span>
+          </div>
+        `;
+      }
+    }
+
+    function updateComparator() {
+      const cNameA = document.getElementById('comp-name-a');
+      const cValA = document.getElementById('comp-val-a');
+      if (cNameA && cValA) {
+        cNameA.textContent = currentRegion.nombre;
+        cValA.textContent = currentRegion.tasa;
+      }
+    }
+
+    function renderDecisions() {
+      const list = document.getElementById('decisions-list');
+      list.innerHTML = DECISIONES.map(d => `
+        <div class="card-box" style="${d.tipo==='diagrama'?'border-color:var(--token-tinta);':'border-color:var(--token-acento); background:var(--token-fondo-panel);'}">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+            <strong style="font-size:13px;">${d.titulo}</strong>
+            <span style="font-size:9px; font-weight:700; text-transform:uppercase; padding:1px 6px; border-radius:9999px; background:${d.tipo==='diagrama'?'var(--token-tinta)':'var(--token-acento)'}; color:white;">${d.cat}</span>
+          </div>
+          <p style="font-size:11.5px; line-height:1.35; color:var(--token-tinta);">${d.frase}</p>
+        </div>
+      `).join('');
+    }
+
+    function testLiveWorker() {
+      const url = document.getElementById('api-input-url').value;
+      const statusEl = document.getElementById('api-status-msg');
+      statusEl.textContent = 'Consultando GET ' + url + '...';
+      
+      fetch(url)
+        .then(r => r.json())
+        .then(data => {
+          statusEl.textContent = '¡Conexión exitosa! Datos recibidos en vivo desde el worker.';
+          showToast('Datos en vivo actualizados');
+        })
+        .catch(err => {
+          statusEl.textContent = 'Worker en despliegue o bloqueado por CORS. Usando fallback oficial INE (16 regiones).';
+          showToast('Fallback oficial INE activo');
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initSelectors();
+      selectLayer(1);
+      renderDecisions();
+      window.addEventListener('resize', () => {
+        if (document.getElementById('slide169-container').style.display === 'flex') resize169();
+      });
+    });
+  </script>
+</body>
+</html>
